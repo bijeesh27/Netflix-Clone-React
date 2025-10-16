@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import "./Titlecards.css";
 
 type ApiCard = {
@@ -58,13 +59,13 @@ const Titlecards: React.FC<TitlecardProps> = ({ title, category }) => {
       <h2>{title ? title : "Popular on Netflix"}</h2>
       <div className="card-list" ref={cardsRef}>
         {apiData.map((card) => (
-          <div className="card" key={card.id}>
+          <Link to={`/player/${card.id}`} className="card" key={card.id}>
             <img
               src={`https://image.tmdb.org/t/p/w500${card.backdrop_path}`}
               alt={card.original_title}
             />
             <p>{card.original_title}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
