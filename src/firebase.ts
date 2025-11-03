@@ -1,11 +1,11 @@
 import { initializeApp } from "firebase/app";
 import {
-  createUserWithEmailAndPassword,
   getAuth,
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { getFirestore, addDoc, collection } from "firebase/firestore";
 import { toast } from "react-toastify";
 
 const firebaseConfig = {
@@ -21,38 +21,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const signUp = async (
-  name: string,
-  email: string,
-  password: string
-): Promise<void> => {
+const signUp = async (name: string, email: string, password: string) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    await addDoc(collection(db, "user"), {
+    await addDoc(collection(db, "users"), {
       uid: user.uid,
       name,
       authProvider: "local",
       email,
     });
-  } catch (error) {
-    console.log(error);
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    toast.success("Account created successfully!");
+  } catch (error: any) {
+    console.error("Signup error:", error);
   }
 };
 
-const login = async (email:string,password:string) => {
+const login = async (email: string, password: string) => {
   try {
-    console.log("hi from login")
-   await signInWithEmailAndPassword(auth,email,password)
-  } catch (error) {
-    console.log(error)
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    await signInWithEmailAndPassword(auth, email, password);
+    toast.success("Logged in successfully!");
+  } catch (error: any) {
+    console.error("Login error:", error);
+    const errorMessage =
+      error.code?.split("/")[1]?.split("-")?.join(" ") || "Login failed";
+    toast.error(errorMessage);
+    throw error;
   }
 };
 
-const logout=async () => {
-    signOut(auth);
-}
+const logout = async () => {
+  try {
+    await signOut(auth);
+    toast.success("Logged out successfully!");
+  } catch (error: any) {
+    console.error("Logout error:", error);
+    toast.error("Logout failed");
+    throw error;
+  }
+};
 
-export {auth,db,login,signUp,logout}
+export { auth, db, login, signUp, logout };
